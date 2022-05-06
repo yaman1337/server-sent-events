@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Sever sent events:</h1>
+    <input type="submit" value="Subscribe" class="subscribe" />
+    <input type="submit" value="Unubscribe" class="unsubscribe" />
+    <ul></ul>
+  </body>
+
+  <!-- read streams -->
+  <script>
+    let event;
+
+    const UL_SELECTOR = "ul";
+    const SUBSCRIBE_BUTTON_SELECTOR = ".subscribe";
+    const UNSUBSCRIBE_BUTTON_SELECTOR = ".unsubscribe";
+
+    const ul_container = document.querySelector(UL_SELECTOR);
+    const subscribe_button = document.querySelector(SUBSCRIBE_BUTTON_SELECTOR);
+    let unsubscribe_button = document.querySelector(
+      UNSUBSCRIBE_BUTTON_SELECTOR
+    );
+
+    // handle subscribe
+    subscribe_button.addEventListener("click", receiveEvents);
+
+    // handle unsubscribe
+    unsubscribe_button.addEventListener("click", (_) => {
+      if (!event) {
+        return;
+      }
+      subscribe_button.removeAttribute("disabled", "")
+      event.close();
+      event = undefined;
+      console.log("closing...");
+      ul_container.innerHTML += `<li>You have unsubscribed from event source.</li>`;
+    });
+
+    function receiveEvents() {
+    subscribe_button.setAttribute("disabled", "")
+      event = new EventSource("/streams");
+
+      event.addEventListener("message", (event) => {
+        event.data = event.data.trim();
+        ul_container.innerHTML += `<li>${event.data}</li>`;
+      });
+    }
+  </script>
+</html>
